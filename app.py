@@ -52,16 +52,16 @@ def unicode_truncate(s, length, encoding='utf-8'):
 
 def all_command(update, context):
     chat_id = update.effective_chat.id
-    user_list = db.get_users_from_chat(chat_id)
-    if not user_list:
-        message = 'There are no users. To opt in type /in command'
-        context.bot.send_message(chat_id=chat_id, text=message)
-    else:
+    if user_list := db.get_users_from_chat(chat_id):
         user_list = [mention_markdown(user_id, unicode_truncate(user_name, 100), version=2)
                      for user_id, user_name in user_list]
         for chunk in chunks(user_list, 4):
             message = ' '.join(chunk)
             context.bot.send_message(chat_id=chat_id, text=message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
+
+    else:
+        message = 'There are no users. To opt in type /in command'
+        context.bot.send_message(chat_id=chat_id, text=message)
 
 
 def stats_command(update, context):
